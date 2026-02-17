@@ -5,7 +5,7 @@ from typing import List
 
 @dataclass
 class AppSettings:
-    api_base_url: str = os.getenv("PRO_API_BASE_URL", "http://127.0.0.1:8000")
+    api_base_url: str = os.getenv("PRO_API_BASE_URL", "https://nova-license-api.onrender.com")
     theme: str = "nova"
     selected_model: str = "yolov8"
     custom_model_path: str = ""

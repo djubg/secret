@@ -20,7 +20,7 @@ class Settings(BaseSettings):
         default="active_patron,declined_patron", alias="PATRON_ACTIVE_STATUSES"
     )
     update_base_url: str = Field(
-        default="http://127.0.0.1:8000/static/downloads", alias="UPDATE_BASE_URL"
+        default="https://nova-license-api.onrender.com/static/downloads", alias="UPDATE_BASE_URL"
     )
     auth_token_ttl_hours: int = Field(default=720, alias="AUTH_TOKEN_TTL_HOURS")
     avatar_upload_dir: str = Field(default="app/static/avatars", alias="AVATAR_UPLOAD_DIR")

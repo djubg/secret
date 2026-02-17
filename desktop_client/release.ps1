@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Version,
     [string]$Notes = "",
-    [string]$BaseUrl = "http://127.0.0.1:8000",
+    [string]$BaseUrl = "https://nova-license-api.onrender.com",
     [string]$PythonExe = "python",
     [switch]$SkipBuild,
     [switch]$SkipChecksum
