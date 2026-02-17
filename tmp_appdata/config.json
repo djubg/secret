@@ -1,0 +1,12 @@
+{
+  "api_base_url": "http://127.0.0.1:8000",
+  "theme": "dark",
+  "selected_model": "yolov8",
+  "custom_model_path": "",
+  "model_options": [
+    "yolov5",
+    "yolov8",
+    "custom model"
+  ],
+  "update_check_on_start": true
+}

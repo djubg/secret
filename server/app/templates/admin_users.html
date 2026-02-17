@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }} - Users</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #172337;
+      --muted: #5b6b82;
+      --brand: #0f6fff;
+      --line: #dce5f2;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #dae8ff, var(--bg) 40%);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+    }
+    .container {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(23, 35, 55, 0.08);
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    input, button, a.btn {
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    button, a.btn {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: middle;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #dfe8f7;
+      border: 1px solid var(--line);
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .actions form { margin: 0; }
+    .btn-danger { background: #cf3e47; }
+    .admin-token { min-width: 260px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>User Profiles</h1>
+      <p style="color: var(--muted);">Total: <strong>{{ total_count }}</strong></p>
+      <div class="toolbar" style="margin-bottom: 10px;">
+        <input id="adminTokenInput" class="admin-token" type="password" placeholder="Admin token for actions" />
+      </div>
+      <form method="get" action="/admin/users" class="toolbar">
+        <input type="text" name="q" value="{{ search_q }}" placeholder="Search by name, email or user id" />
+        <button type="submit">Filter</button>
+        <a class="btn" href="/admin">Back to Admin</a>
+      </form>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Avatar</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>User ID</th>
+            <th>Active</th>
+            <th>Licenses</th>
+            <th>Latest License</th>
+            <th>Last Login</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in users %}
+          <tr>
+            <td>
+              {% if item.user.avatar_url %}
+              <img class="avatar" src="{{ item.user.avatar_url }}" alt="avatar" />
+              {% else %}
+              <div class="avatar"></div>
+              {% endif %}
+            </td>
+            <td>
+              <a href="/admin/users/{{ item.user.id }}" style="color: var(--brand); font-weight: 700; text-decoration: none;">
+                {{ item.user.display_name }}
+              </a>
+            </td>
+            <td>{{ item.user.email }}</td>
+            <td><code>{{ item.user.id }}</code></td>
+            <td>{{ "Yes" if item.user.is_active else "No" }}</td>
+            <td>{{ item.license_count }}</td>
+            <td>{{ item.latest_license_status or "-" }} <code>{{ item.latest_license_key or "" }}</code></td>
+            <td>{{ item.user.last_login_at or "-" }}</td>
+            <td>{{ item.user.created_at }}</td>
+            <td>
+              <div class="actions">
+                <form method="post" action="/admin/users/{{ item.user.id }}/disable" class="token-form">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin/users?q={{ search_q }}" />
+                  <button type="submit">Disable</button>
+                </form>
+                <form method="post" action="/admin/users/{{ item.user.id }}/delete" class="token-form" onsubmit="return confirm('Delete this profile?');">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="revoke_licenses" value="1" />
+                  <input type="hidden" name="next_url" value="/admin/users?q={{ search_q }}" />
+                  <button type="submit" class="btn-danger">Delete Profile</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll(".token-form").forEach((form) => {
+      form.addEventListener("submit", () => {
+        const tokenInput = document.getElementById("adminTokenInput");
+        const hidden = form.querySelector("input[name='admin_token']");
+        if (hidden && tokenInput) {
+          hidden.value = tokenInput.value;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

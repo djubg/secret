@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }} - License Detail</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #172337;
+      --muted: #5b6b82;
+      --brand: #0f6fff;
+      --line: #dce5f2;
+      --danger: #cf3e47;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #dae8ff, var(--bg) 40%);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(23, 35, 55, 0.08);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .muted { color: var(--muted); }
+    code {
+      background: #eef4ff;
+      border: 1px solid #d7e3f9;
+      border-radius: 8px;
+      padding: 2px 6px;
+    }
+    input, select, button {
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+    }
+    button {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .danger {
+      background: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <p><a href="/admin/keys" style="color: var(--brand); font-weight:700; text-decoration:none;">&larr; Back to all keys</a></p>
+      <h1 style="margin: 6px 0 12px;">License Detail</h1>
+      <div class="grid">
+        <div><strong>License ID:</strong> <code>{{ license.id }}</code></div>
+        <div><strong>Status:</strong> {{ license.status.value }}</div>
+        <div><strong>Full key:</strong> <code>{{ license.full_key or "-" }}</code></div>
+        <div><strong>Display key:</strong> {{ license.display_key }}</div>
+        <div><strong>Duration:</strong> {{ license.duration.value }}</div>
+        <div><strong>Expires:</strong> {{ license.expires_at or "lifetime" }}</div>
+        <div><strong>HWID hash:</strong> <code>{{ license.hwid_hash or "-" }}</code></div>
+        <div><strong>Activations:</strong> {{ license.activation_count }}</div>
+        <div><strong>Notes:</strong> {{ license.notes or "-" }}</div>
+        <div><strong>Created:</strong> {{ license.created_at }}</div>
+      </div>
+      <hr style="border:none; border-top:1px solid var(--line); margin: 14px 0;">
+      <div>
+        <h3 style="margin: 0 0 8px;">Owner</h3>
+        {% if owner %}
+          <p style="margin: 0;"><strong>Name:</strong> <a href="/admin/users/{{ owner.id }}" style="color: var(--brand); text-decoration:none;">{{ owner.display_name }}</a></p>
+          <p style="margin: 4px 0 0;"><strong>Email:</strong> {{ owner.email }}</p>
+          <p style="margin: 4px 0 0;"><strong>User ID:</strong> <code>{{ owner.id }}</code></p>
+          <p class="muted" style="margin: 4px 0 0;">Active account: {{ "Yes" if owner.is_active else "No" }}</p>
+        {% else %}
+          <p class="muted" style="margin: 0;">No owner linked.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 10px;">Actions</h2>
+      <input id="adminTokenInput" type="password" placeholder="Admin token" />
+      <div style="margin-top:10px;">
+        <form method="post" action="/admin/license/{{ license.id }}/extend" class="token-form" style="display:inline-block;">
+          <input type="hidden" name="admin_token" value="" />
+          <input type="hidden" name="next_url" value="/admin/licenses/{{ license.id }}" />
+          <select name="add">
+            <option value="1h">+1h</option>
+            <option value="1d">+1d</option>
+            <option value="7d">+7d</option>
+            <option value="30d">+30d</option>
+          </select>
+          <button type="submit">Add time</button>
+        </form>
+        <form method="post" action="/admin/license/{{ license.id }}/deactivate" class="token-form" style="display:inline-block;">
+          <input type="hidden" name="admin_token" value="" />
+          <input type="hidden" name="next_url" value="/admin/licenses/{{ license.id }}" />
+          <button type="submit">Deactivate</button>
+        </form>
+        <form method="post" action="/admin/license/{{ license.id }}/reactivate" class="token-form" style="display:inline-block;">
+          <input type="hidden" name="admin_token" value="" />
+          <input type="hidden" name="next_url" value="/admin/licenses/{{ license.id }}" />
+          <button type="submit">Reactivate</button>
+        </form>
+        <form method="post" action="/admin/license/{{ license.id }}/delete" class="token-form" style="display:inline-block;" onsubmit="return confirm('Delete this license?');">
+          <input type="hidden" name="admin_token" value="" />
+          <input type="hidden" name="next_url" value="/admin/keys" />
+          <button type="submit" class="danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll(".token-form").forEach((form) => {
+      form.addEventListener("submit", () => {
+        const tokenInput = document.getElementById("adminTokenInput");
+        const hidden = form.querySelector("input[name='admin_token']");
+        if (hidden && tokenInput) hidden.value = tokenInput.value;
+      });
+    });
+  </script>
+</body>
+</html>

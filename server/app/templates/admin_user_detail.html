@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }} - User Detail</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #172337;
+      --muted: #5b6b82;
+      --brand: #0f6fff;
+      --line: #dce5f2;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #dae8ff, var(--bg) 40%);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(23, 35, 55, 0.08);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #dfe8f7;
+      border: 1px solid var(--line);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    a {
+      color: var(--brand);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    input, select, button {
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+    }
+    button {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-danger {
+      background: #cf3e47;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .actions form { margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <p><a href="/admin/users">← Back to users</a></p>
+      <div class="row">
+        <div>
+          {% if user.avatar_url %}
+          <img class="avatar" src="{{ user.avatar_url }}" alt="avatar" />
+          {% else %}
+          <div class="avatar"></div>
+          {% endif %}
+        </div>
+        <div>
+          <h1 style="margin: 0 0 6px;">{{ user.display_name }}</h1>
+          <p style="margin: 0 0 6px; color: var(--muted);">{{ user.email }}</p>
+          <p style="margin: 0; color: var(--muted);">User ID: <code>{{ user.id }}</code></p>
+          <p style="margin: 6px 0 0; color: var(--muted);">Created: {{ user.created_at }}</p>
+          <p style="margin: 4px 0 0; color: var(--muted);">Last login: {{ user.last_login_at or "-" }}</p>
+          <div class="toolbar">
+            <input id="adminTokenInput" type="password" placeholder="Admin token" />
+            <form method="post" action="/admin/users/{{ user.id }}/disable" class="token-form">
+              <input type="hidden" name="admin_token" value="" />
+              <input type="hidden" name="next_url" value="/admin/users/{{ user.id }}" />
+              <button type="submit">Disable User</button>
+            </form>
+            <form method="post" action="/admin/users/{{ user.id }}/delete" class="token-form" onsubmit="return confirm('Delete this profile?');">
+              <input type="hidden" name="admin_token" value="" />
+              <input type="hidden" name="revoke_licenses" value="1" />
+              <input type="hidden" name="next_url" value="/admin/users" />
+              <button type="submit" class="btn-danger">Delete Profile</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top: 0;">Linked Licenses</h2>
+      <p style="color: var(--muted);">Full key is visible for licenses generated after the latest update.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>License ID</th>
+            <th>Full Key</th>
+            <th>Display Key</th>
+            <th>Status</th>
+            <th>Duration</th>
+            <th>Expires</th>
+            <th>HWID Bound</th>
+            <th>Notes</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key in licenses %}
+          <tr>
+            <td><code>{{ key.id }}</code></td>
+            <td><code>{{ key.full_key or "-" }}</code></td>
+            <td>{{ key.display_key }}</td>
+            <td>{{ key.status.value }}</td>
+            <td>{{ key.duration.value }}</td>
+            <td>{{ key.expires_at or "lifetime" }}</td>
+            <td>{{ "Yes" if key.hwid_hash else "No" }}</td>
+            <td>{{ key.notes or "-" }}</td>
+            <td>{{ key.created_at }}</td>
+            <td>
+              <div class="actions">
+                <form method="post" action="/admin/license/{{ key.id }}/extend" class="token-form">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin/users/{{ user.id }}" />
+                  <select name="add">
+                    <option value="1h">+1h</option>
+                    <option value="1d">+1d</option>
+                    <option value="7d">+7d</option>
+                    <option value="30d">+30d</option>
+                  </select>
+                  <button type="submit">Add Time</button>
+                </form>
+                <form method="post" action="/admin/license/{{ key.id }}/deactivate" class="token-form">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin/users/{{ user.id }}" />
+                  <button type="submit">Deactivate</button>
+                </form>
+                <form method="post" action="/admin/license/{{ key.id }}/delete" class="token-form" onsubmit="return confirm('Delete this license?');">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin/users/{{ user.id }}" />
+                  <button type="submit" class="btn-danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll(".token-form").forEach((form) => {
+      form.addEventListener("submit", () => {
+        const tokenInput = document.getElementById("adminTokenInput");
+        const hidden = form.querySelector("input[name='admin_token']");
+        if (hidden && tokenInput) {
+          hidden.value = tokenInput.value;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

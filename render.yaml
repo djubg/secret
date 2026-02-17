@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: nova-license-api
+    runtime: python
+    plan: free
+    rootDir: server
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_NAME
+        value: License Backend
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: "10000"
+      - key: DATABASE_URL
+        value: sqlite:///./license.db
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: KEY_PEPPER
+        generateValue: true
+      - key: HWID_PEPPER
+        generateValue: true
+      - key: TEMP_LICENSE_HOURS
+        value: "24"
+      - key: PATRON_ACTIVE_STATUSES
+        value: active_patron,declined_patron
+      - key: AUTH_TOKEN_TTL_HOURS
+        value: "720"
+      - key: AVATAR_UPLOAD_DIR
+        value: app/static/avatars
+      - key: AVATAR_MAX_SIZE_MB
+        value: "2"

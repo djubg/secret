@@ -1,0 +1,65 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1018"/>
+      <stop offset="100%" stop-color="#101826"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff6d1b"/>
+      <stop offset="100%" stop-color="#2f74ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1440" height="900" fill="url(#base)"/>
+  <rect x="28" y="20" width="1384" height="860" rx="16" fill="#0c121d" stroke="#263652"/>
+
+  <rect x="56" y="54" width="52" height="52" rx="12" fill="#162033"/>
+  <rect x="56" y="120" width="52" height="52" rx="12" fill="#162033"/>
+  <rect x="56" y="186" width="52" height="52" rx="12" fill="#223a66" stroke="#2f74ff"/>
+  <rect x="56" y="252" width="52" height="52" rx="12" fill="#162033"/>
+  <rect x="56" y="756" width="52" height="52" rx="12" fill="#162033"/>
+
+  <text x="140" y="84" fill="#f2f6ff" font-size="26" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Dashboard</text>
+  <text x="278" y="84" fill="#8ea6cb" font-size="18" font-family="Segoe UI, Arial, sans-serif">Settings</text>
+  <text x="396" y="84" fill="#8ea6cb" font-size="18" font-family="Segoe UI, Arial, sans-serif">Updates</text>
+  <text x="500" y="84" fill="#8ea6cb" font-size="18" font-family="Segoe UI, Arial, sans-serif">Logs</text>
+  <rect x="140" y="96" width="110" height="4" rx="2" fill="url(#line)"/>
+
+  <rect x="140" y="130" width="1244" height="210" rx="12" fill="#111b2d" stroke="#263a5d"/>
+  <text x="170" y="176" fill="#dbe6fb" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Profile</text>
+  <circle cx="202" cy="238" r="30" fill="#2b3a55"/>
+  <text x="248" y="230" fill="#f2f6ff" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">BOB777</text>
+  <text x="248" y="260" fill="#8ba3c8" font-size="15" font-family="Segoe UI, Arial, sans-serif">User since 2025-01-22</text>
+  <text x="248" y="286" fill="#8ba3c8" font-size="15" font-family="Segoe UI, Arial, sans-serif">Discord takiesaregood</text>
+  <rect x="1084" y="198" width="268" height="52" rx="10" fill="#ff6d1b"/>
+  <text x="1218" y="232" text-anchor="middle" fill="#ffffff" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="700">EDIT PROFILE</text>
+
+  <rect x="140" y="360" width="398" height="170" rx="12" fill="#0f1828" stroke="#2a3c5d"/>
+  <rect x="553" y="360" width="398" height="170" rx="12" fill="#0f1828" stroke="#2a3c5d"/>
+  <rect x="966" y="360" width="418" height="170" rx="12" fill="#0f1828" stroke="#2a3c5d"/>
+  <text x="166" y="398" fill="#dbe6fb" font-size="16" font-family="Segoe UI, Arial, sans-serif">Engine</text>
+  <text x="166" y="448" fill="#30d17f" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="800">ONLINE</text>
+  <text x="579" y="398" fill="#dbe6fb" font-size="16" font-family="Segoe UI, Arial, sans-serif">Capture FPS</text>
+  <text x="579" y="448" fill="#f2f6ff" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="800">56</text>
+  <text x="992" y="398" fill="#dbe6fb" font-size="16" font-family="Segoe UI, Arial, sans-serif">License</text>
+  <text x="992" y="448" fill="#2f74ff" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="800">ACTIVE</text>
+
+  <rect x="140" y="550" width="840" height="300" rx="12" fill="#0f1828" stroke="#2a3c5d"/>
+  <text x="166" y="588" fill="#dbe6fb" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Quick Actions</text>
+  <rect x="166" y="620" width="180" height="46" rx="9" fill="#2f74ff"/>
+  <text x="256" y="650" text-anchor="middle" fill="#ffffff" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">START</text>
+  <rect x="360" y="620" width="180" height="46" rx="9" fill="#1d2942"/>
+  <text x="450" y="650" text-anchor="middle" fill="#dbe6fb" font-size="18" font-family="Segoe UI, Arial, sans-serif">PAUSE</text>
+  <rect x="554" y="620" width="180" height="46" rx="9" fill="#1d2942"/>
+  <text x="644" y="650" text-anchor="middle" fill="#dbe6fb" font-size="18" font-family="Segoe UI, Arial, sans-serif">STOP</text>
+  <rect x="748" y="620" width="206" height="46" rx="9" fill="#1d2942"/>
+  <text x="851" y="650" text-anchor="middle" fill="#dbe6fb" font-size="18" font-family="Segoe UI, Arial, sans-serif">RESTART</text>
+
+  <rect x="1000" y="550" width="384" height="300" rx="12" fill="#0f1828" stroke="#2a3c5d"/>
+  <text x="1026" y="588" fill="#dbe6fb" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Live Logs</text>
+  <text x="1026" y="626" fill="#8ca3c8" font-size="13" font-family="Consolas, monospace">[INFO] ONNX model loaded</text>
+  <text x="1026" y="651" fill="#8ca3c8" font-size="13" font-family="Consolas, monospace">[INFO] Aimbot started</text>
+  <text x="1026" y="676" fill="#8ca3c8" font-size="13" font-family="Consolas, monospace">[INFO] DXCam capture started</text>
+  <text x="1026" y="701" fill="#8ca3c8" font-size="13" font-family="Consolas, monospace">[WARN] Debug window closed, headless mode</text>
+  <text x="1026" y="726" fill="#8ca3c8" font-size="13" font-family="Consolas, monospace">[INFO] Session runtime 00:12:41</text>
+</svg>

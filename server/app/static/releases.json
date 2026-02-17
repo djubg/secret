@@ -1,0 +1,9 @@
+{
+  "latest": {
+    "version": "1.0.1",
+    "download_url": "http://127.0.0.1:8000/static/downloads/desktop_client_1.0.1.zip",
+    "notes": "Initial stable release.",
+    "notice_id": "2026-02-17T16:40:44.761010+00:00",
+    "notice_message": "test"
+  }
+}

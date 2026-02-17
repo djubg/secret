@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }} - Hub</title>
+  <style>
+    :root {
+      --bg: #0a101b;
+      --panel: #111b2b;
+      --card: #0f1726;
+      --ink: #e9f0ff;
+      --muted: #8ea5cc;
+      --brand: #2f74ff;
+      --accent: #ff6d1b;
+      --line: #273a5a;
+      --ok: #2ccf8f;
+      --warn: #f6b73c;
+      --bad: #ff5f66;
+    }
+    body {
+      margin: 0;
+      font-family: "Rajdhani", "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top right, #163b70, var(--bg) 42%);
+    }
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+    .hero {
+      background: linear-gradient(90deg, #111c30 0%, #1a3d68 50%, #111c30 100%);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 30px;
+      letter-spacing: 0.8px;
+      font-family: "Orbitron", "Rajdhani", "Segoe UI", sans-serif;
+    }
+    p, small {
+      margin: 0;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    .card h2 {
+      margin: 0 0 10px 0;
+      font-size: 22px;
+      color: #d6e4ff;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .row.single {
+      grid-template-columns: 1fr;
+    }
+    label {
+      color: var(--muted);
+      font-size: 14px;
+      display: block;
+      margin: 0 0 4px 1px;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 10px 12px;
+      font: inherit;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    button {
+      background: var(--brand);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    button:hover { filter: brightness(1.08); }
+    .btn-accent { background: var(--accent); }
+    .btn-ghost { background: #1a2942; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 8px;
+      align-items: end;
+      margin-top: 10px;
+    }
+    .links {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .links a {
+      text-decoration: none;
+      color: #cddcff;
+      background: #142339;
+      border: 1px solid #29466f;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 700;
+    }
+    .status {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+    .mini-screen {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #0f1a2b 0%, #111b2b 100%);
+      padding: 10px;
+    }
+    .mini-title {
+      font-weight: 700;
+      color: #cfe1ff;
+      margin-bottom: 8px;
+    }
+    .chip-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .user-box p {
+      margin: 2px 0;
+    }
+    .key-view {
+      min-height: 92px;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      letter-spacing: 0.2px;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>{{ app_name }}</h1>
+      <p data-i18n="heroSubtitle">Visual Hub for quick actions. Fill values below and send API calls without Swagger.</p>
+      <div class="toolbar">
+        <div>
+          <label data-i18n="adminToken">Admin token</label>
+          <input id="adminToken" type="password" placeholder="Admin token (.env)" data-ph="adminTokenPh" />
+        </div>
+        <div>
+          <label data-i18n="userToken">User token (optional)</label>
+          <input id="userToken" type="text" placeholder="X-User-Token for activate/profile calls" data-ph="userTokenPh" />
+        </div>
+        <a href="/docs"><button type="button" data-i18n="openSwagger">Open Swagger</button></a>
+        <a href="/admin"><button type="button" class="btn-accent" data-i18n="openAdmin">Open Admin</button></a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 data-i18n="generateKey">Generate Key</h2>
+        <div class="row">
+          <div>
+            <label data-i18n="duration">Duration</label>
+            <select id="genDuration">
+              <option value="1h">1h</option>
+              <option value="1d">1d</option>
+              <option value="30d" selected>30d</option>
+              <option value="lifetime">lifetime</option>
+            </select>
+          </div>
+          <div>
+            <label data-i18n="patreonOptional">Patreon user id (optional)</label>
+            <input id="genPatreonId" type="text" placeholder="patreon_123" data-ph="patreonPh" />
+          </div>
+        </div>
+        <div class="row single">
+          <div>
+            <label data-i18n="notesOptional">Notes (optional)</label>
+            <input id="genNotes" type="text" placeholder="Test key for user X" data-ph="notesPh" />
+          </div>
+        </div>
+        <button onclick="generateKey()" data-i18n="generateBtn">Generate</button>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="activateLicense">Activate License</h2>
+        <div class="row">
+          <div>
+            <label data-i18n="accessKey">Access key</label>
+            <input id="activateKey" type="text" placeholder="LIC-..." data-ph="keyPh" />
+          </div>
+          <div>
+            <label>HWID</label>
+            <input id="activateHwid" type="text" placeholder="PC-ABC123" data-ph="hwidPh" />
+          </div>
+        </div>
+        <button onclick="activateLicense()" data-i18n="activateBtn">Activate</button>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="validateLicense">Validate License</h2>
+        <div class="row">
+          <div>
+            <label data-i18n="accessKey">Access key</label>
+            <input id="validateKey" type="text" placeholder="LIC-..." data-ph="keyPh" />
+          </div>
+          <div>
+            <label>HWID</label>
+            <input id="validateHwid" type="text" placeholder="PC-ABC123" data-ph="hwidPh" />
+          </div>
+        </div>
+        <button onclick="validateLicense()" data-i18n="validateBtn">Validate</button>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="licenseActions">License Actions</h2>
+        <div class="row">
+          <div>
+            <label data-i18n="licenseId">License ID</label>
+            <input id="actionLicenseId" type="text" placeholder="UUID license id" data-ph="licenseIdPh" />
+          </div>
+          <div>
+            <label data-i18n="addTime">Add time</label>
+            <select id="extendValue">
+              <option value="1h">+1h</option>
+              <option value="1d" selected>+1d</option>
+              <option value="7d">+7d</option>
+              <option value="30d">+30d</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <button onclick="extendLicense()" data-i18n="extendBtn">Extend</button>
+          <button onclick="revokeLicense()" data-i18n="revokeBtn">Revoke</button>
+        </div>
+        <button class="btn-accent" onclick="deleteLicense()" data-i18n="deleteLicenseBtn">Delete License</button>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="hubSettings">🎛️ Hub Settings</h2>
+        <div class="mini-screen">
+          <div class="mini-title" data-i18n="miniScreenTitle">Mini control screen</div>
+          <div class="row">
+            <div>
+              <label data-i18n="language">Language</label>
+              <select id="langSelect">
+                <option value="en">🇺🇸 English</option>
+                <option value="fr" selected>🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+              </select>
+            </div>
+            <div>
+              <label data-i18n="themePreset">Theme preset</label>
+              <select id="themePreset">
+                <option value="neon">🌌 Neon</option>
+                <option value="ocean" selected>🌊 Ocean</option>
+                <option value="sunset">🌇 Sunset</option>
+                <option value="mono">⚫ Mono</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label data-i18n="brandColor">Brand color</label>
+              <input id="brandColor" type="color" value="#2f74ff" />
+            </div>
+            <div>
+              <label data-i18n="accentColor">Accent color</label>
+              <input id="accentColor" type="color" value="#ff6d1b" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label data-i18n="bgColor">Background color</label>
+              <input id="bgColor" type="color" value="#0a101b" />
+            </div>
+            <div>
+              <label data-i18n="panelColor">Panel color</label>
+              <input id="panelColor" type="color" value="#111b2b" />
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn-ghost" onclick="applyPreset()" data-i18n="applyPresetBtn">Apply preset</button>
+            <button class="btn-accent" onclick="applyCustomColors()" data-i18n="applyColorsBtn">Apply colors</button>
+          </div>
+          <div class="chip-row">
+            <span class="chip">✨ UI</span>
+            <span class="chip">🎨 Colors</span>
+            <span class="chip">🌍 Language</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card user-box">
+        <h2 data-i18n="userAndKey">👤 User & Full Key</h2>
+        <div class="row">
+          <button class="btn-ghost" onclick="loadMe()" data-i18n="loadUserBtn">Load user (/me)</button>
+          <button onclick="copyFullKey()" data-i18n="copyKeyBtn">Copy full key</button>
+        </div>
+        <p><strong data-i18n="nameLabel">Name:</strong> <span id="meName">-</span></p>
+        <p><strong>Email:</strong> <span id="meEmail">-</span></p>
+        <p><strong>User ID:</strong> <span id="meId">-</span></p>
+        <p><strong data-i18n="tokenStatus">Token status:</strong> <span id="meTokenStatus">waiting</span></p>
+        <div class="row single" style="margin-top:8px;">
+          <div>
+            <label data-i18n="fullKeyView">Full key viewer</label>
+            <textarea id="fullKeyView" class="key-view" placeholder="Generated or entered key will appear here"></textarea>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn-ghost" onclick="useKeyForActivation()" data-i18n="useForActivate">Use for activate</button>
+          <button class="btn-ghost" onclick="useKeyForValidation()" data-i18n="useForValidate">Use for validate</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 14px;">
+      <h2 data-i18n="responseTitle">Response</h2>
+      <textarea id="responseBox" readonly>{ "message": "Ready" }</textarea>
+      <div id="statusLine" class="status">Status: waiting</div>
+      <div class="links">
+        <a href="/admin/users">Users 👥</a>
+        <a href="/admin/keys">All Keys 🔑</a>
+        <a href="/health">Health</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    const I18N = {
+      en: {
+        heroSubtitle: "Visual Hub for quick actions. Fill values below and send API calls without Swagger.",
+        adminToken: "Admin token",
+        adminTokenPh: "Admin token (.env)",
+        userToken: "User token (optional)",
+        userTokenPh: "X-User-Token for activate/profile calls",
+        openSwagger: "Open Swagger",
+        openAdmin: "Open Admin",
+        generateKey: "Generate Key",
+        duration: "Duration",
+        patreonOptional: "Patreon user id (optional)",
+        patreonPh: "patreon_123",
+        notesOptional: "Notes (optional)",
+        notesPh: "Test key for user X",
+        generateBtn: "Generate",
+        activateLicense: "Activate License",
+        accessKey: "Access key",
+        keyPh: "LIC-...",
+        hwidPh: "PC-ABC123",
+        activateBtn: "Activate",
+        validateLicense: "Validate License",
+        validateBtn: "Validate",
+        licenseActions: "License Actions",
+        licenseId: "License ID",
+        licenseIdPh: "UUID license id",
+        addTime: "Add time",
+        extendBtn: "Extend",
+        revokeBtn: "Revoke",
+        deleteLicenseBtn: "Delete License",
+        hubSettings: "🎛️ Hub Settings",
+        miniScreenTitle: "Mini control screen",
+        language: "Language",
+        themePreset: "Theme preset",
+        brandColor: "Brand color",
+        accentColor: "Accent color",
+        bgColor: "Background color",
+        panelColor: "Panel color",
+        applyPresetBtn: "Apply preset",
+        applyColorsBtn: "Apply colors",
+        userAndKey: "👤 User & Full Key",
+        loadUserBtn: "Load user (/me)",
+        copyKeyBtn: "Copy full key",
+        nameLabel: "Name:",
+        tokenStatus: "Token status:",
+        fullKeyView: "Full key viewer",
+        useForActivate: "Use for activate",
+        useForValidate: "Use for validate",
+        responseTitle: "Response"
+      },
+      fr: {
+        heroSubtitle: "Hub visuel pour actions rapides. Renseigne les valeurs et envoie les appels API sans Swagger.",
+        adminToken: "Token admin",
+        adminTokenPh: "Token admin (.env)",
+        userToken: "Token utilisateur (optionnel)",
+        userTokenPh: "X-User-Token pour activate/profile",
+        openSwagger: "Ouvrir Swagger",
+        openAdmin: "Ouvrir Admin",
+        generateKey: "Générer une clé",
+        duration: "Durée",
+        patreonOptional: "Patreon user id (optionnel)",
+        patreonPh: "patreon_123",
+        notesOptional: "Notes (optionnel)",
+        notesPh: "Clé de test pour user X",
+        generateBtn: "Générer",
+        activateLicense: "Activer licence",
+        accessKey: "Clé d'accès",
+        keyPh: "LIC-...",
+        hwidPh: "PC-ABC123",
+        activateBtn: "Activer",
+        validateLicense: "Vérifier licence",
+        validateBtn: "Vérifier",
+        licenseActions: "Actions licence",
+        licenseId: "ID licence",
+        licenseIdPh: "UUID de la licence",
+        addTime: "Ajouter du temps",
+        extendBtn: "Ajouter",
+        revokeBtn: "Révoquer",
+        deleteLicenseBtn: "Supprimer licence",
+        hubSettings: "🎛️ Paramètres Hub",
+        miniScreenTitle: "Mini écran de contrôle",
+        language: "Langue",
+        themePreset: "Thème",
+        brandColor: "Couleur principale",
+        accentColor: "Couleur accent",
+        bgColor: "Couleur fond",
+        panelColor: "Couleur panneau",
+        applyPresetBtn: "Appliquer thème",
+        applyColorsBtn: "Appliquer couleurs",
+        userAndKey: "👤 Utilisateur & Clé complète",
+        loadUserBtn: "Charger user (/me)",
+        copyKeyBtn: "Copier clé complète",
+        nameLabel: "Nom :",
+        tokenStatus: "État token :",
+        fullKeyView: "Visionneuse clé complète",
+        useForActivate: "Utiliser pour activer",
+        useForValidate: "Utiliser pour vérifier",
+        responseTitle: "Réponse"
+      },
+      es: {
+        heroSubtitle: "Hub visual para acciones rápidas. Completa valores y envía llamadas API sin Swagger.",
+        adminToken: "Token admin",
+        adminTokenPh: "Token admin (.env)",
+        userToken: "Token de usuario (opcional)",
+        userTokenPh: "X-User-Token para activate/profile",
+        openSwagger: "Abrir Swagger",
+        openAdmin: "Abrir Admin",
+        generateKey: "Generar clave",
+        duration: "Duración",
+        patreonOptional: "Patreon user id (opcional)",
+        patreonPh: "patreon_123",
+        notesOptional: "Notas (opcional)",
+        notesPh: "Clave de prueba para usuario X",
+        generateBtn: "Generar",
+        activateLicense: "Activar licencia",
+        accessKey: "Clave de acceso",
+        keyPh: "LIC-...",
+        hwidPh: "PC-ABC123",
+        activateBtn: "Activar",
+        validateLicense: "Validar licencia",
+        validateBtn: "Validar",
+        licenseActions: "Acciones licencia",
+        licenseId: "ID licencia",
+        licenseIdPh: "UUID de licencia",
+        addTime: "Añadir tiempo",
+        extendBtn: "Extender",
+        revokeBtn: "Revocar",
+        deleteLicenseBtn: "Eliminar licencia",
+        hubSettings: "🎛️ Ajustes Hub",
+        miniScreenTitle: "Mini pantalla de control",
+        language: "Idioma",
+        themePreset: "Tema",
+        brandColor: "Color principal",
+        accentColor: "Color acento",
+        bgColor: "Color de fondo",
+        panelColor: "Color de panel",
+        applyPresetBtn: "Aplicar tema",
+        applyColorsBtn: "Aplicar colores",
+        userAndKey: "👤 Usuario & Clave completa",
+        loadUserBtn: "Cargar user (/me)",
+        copyKeyBtn: "Copiar clave completa",
+        nameLabel: "Nombre:",
+        tokenStatus: "Estado token:",
+        fullKeyView: "Visor de clave completa",
+        useForActivate: "Usar para activar",
+        useForValidate: "Usar para validar",
+        responseTitle: "Respuesta"
+      }
+    };
+
+    function applyLanguage(lang) {
+      const dict = I18N[lang] || I18N.en;
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        const key = node.getAttribute("data-i18n");
+        if (dict[key]) node.textContent = dict[key];
+      });
+      document.querySelectorAll("[data-ph]").forEach((node) => {
+        const key = node.getAttribute("data-ph");
+        if (dict[key]) node.setAttribute("placeholder", dict[key]);
+      });
+      localStorage.setItem("hub_lang", lang);
+    }
+
+    function setCssVar(name, value) {
+      document.documentElement.style.setProperty(name, value);
+    }
+
+    function applyPreset() {
+      const preset = document.getElementById("themePreset").value;
+      const presets = {
+        neon: { brand: "#2f74ff", accent: "#ff6d1b", bg: "#0a101b", panel: "#111b2b" },
+        ocean: { brand: "#31a4ff", accent: "#22d3aa", bg: "#091425", panel: "#0f2438" },
+        sunset: { brand: "#ff7a3d", accent: "#ff3f81", bg: "#1a0f12", panel: "#2a1319" },
+        mono: { brand: "#94a3b8", accent: "#cbd5e1", bg: "#0e1117", panel: "#161b22" }
+      };
+      const p = presets[preset] || presets.neon;
+      document.getElementById("brandColor").value = p.brand;
+      document.getElementById("accentColor").value = p.accent;
+      document.getElementById("bgColor").value = p.bg;
+      document.getElementById("panelColor").value = p.panel;
+      applyCustomColors();
+    }
+
+    function applyCustomColors() {
+      const brand = document.getElementById("brandColor").value;
+      const accent = document.getElementById("accentColor").value;
+      const bg = document.getElementById("bgColor").value;
+      const panel = document.getElementById("panelColor").value;
+      setCssVar("--brand", brand);
+      setCssVar("--accent", accent);
+      setCssVar("--bg", bg);
+      setCssVar("--panel", panel);
+      localStorage.setItem("hub_colors", JSON.stringify({ brand, accent, bg, panel }));
+    }
+
+    function restoreUiPrefs() {
+      const lang = localStorage.getItem("hub_lang") || "fr";
+      document.getElementById("langSelect").value = lang;
+      applyLanguage(lang);
+      const colors = localStorage.getItem("hub_colors");
+      if (colors) {
+        try {
+          const c = JSON.parse(colors);
+          if (c.brand) document.getElementById("brandColor").value = c.brand;
+          if (c.accent) document.getElementById("accentColor").value = c.accent;
+          if (c.bg) document.getElementById("bgColor").value = c.bg;
+          if (c.panel) document.getElementById("panelColor").value = c.panel;
+          applyCustomColors();
+        } catch (_e) {}
+      }
+    }
+
+    function pretty(obj) {
+      return JSON.stringify(obj, null, 2);
+    }
+
+    function setResult(ok, code, data) {
+      const box = document.getElementById("responseBox");
+      const status = document.getElementById("statusLine");
+      box.value = pretty(data);
+      status.textContent = `Status: ${code}`;
+      status.className = "status " + (ok ? "ok" : "bad");
+    }
+
+    async function callApi(path, method, payload = null, useAdmin = false, useUser = false) {
+      const headers = { "Content-Type": "application/json" };
+      if (useAdmin) {
+        headers["X-Admin-Token"] = document.getElementById("adminToken").value || "";
+      }
+      if (useUser) {
+        headers["X-User-Token"] = document.getElementById("userToken").value || "";
+      }
+      const response = await fetch(path, {
+        method,
+        headers,
+        body: payload ? JSON.stringify(payload) : null,
+      });
+      let data = {};
+      try { data = await response.json(); } catch (_e) { data = { detail: "No JSON body" }; }
+      setResult(response.ok, response.status, data);
+      return { ok: response.ok, data };
+    }
+
+    async function generateKey() {
+      const result = await callApi("/hub/generate_key", "POST", {
+        duration: document.getElementById("genDuration").value,
+        patreon_user_id: document.getElementById("genPatreonId").value || null,
+        notes: document.getElementById("genNotes").value || null,
+      }, true, false);
+      if (result.ok && result.data && result.data.key) {
+        const fullKey = result.data.key;
+        document.getElementById("fullKeyView").value = fullKey;
+        document.getElementById("activateKey").value = fullKey;
+        document.getElementById("validateKey").value = fullKey;
+      }
+    }
+
+    function activateLicense() {
+      document.getElementById("fullKeyView").value = document.getElementById("activateKey").value;
+      callApi("/hub/activate", "POST", {
+        key: document.getElementById("activateKey").value,
+        hwid: document.getElementById("activateHwid").value,
+      }, false, true);
+    }
+
+    function validateLicense() {
+      document.getElementById("fullKeyView").value = document.getElementById("validateKey").value;
+      callApi("/hub/validate", "POST", {
+        key: document.getElementById("validateKey").value,
+        hwid: document.getElementById("validateHwid").value,
+      }, false, false);
+    }
+
+    function extendLicense() {
+      const licenseId = document.getElementById("actionLicenseId").value;
+      callApi(`/hub/license/${licenseId}/extend`, "POST", {
+        add: document.getElementById("extendValue").value,
+      }, true, false);
+    }
+
+    function revokeLicense() {
+      const licenseId = document.getElementById("actionLicenseId").value;
+      callApi(`/hub/license/${licenseId}/revoke`, "POST", null, true, false);
+    }
+
+    function deleteLicense() {
+      const licenseId = document.getElementById("actionLicenseId").value;
+      callApi(`/hub/license/${licenseId}`, "DELETE", null, true, false);
+    }
+
+    async function loadMe() {
+      const result = await callApi("/me", "GET", null, false, true);
+      if (!result.ok) {
+        document.getElementById("meTokenStatus").textContent = "invalid";
+        return;
+      }
+      const data = result.data || {};
+      document.getElementById("meName").textContent = data.display_name || "-";
+      document.getElementById("meEmail").textContent = data.email || "-";
+      document.getElementById("meId").textContent = data.id || "-";
+      document.getElementById("meTokenStatus").textContent = "ok";
+    }
+
+    function copyFullKey() {
+      const value = document.getElementById("fullKeyView").value;
+      if (!value) return;
+      navigator.clipboard.writeText(value);
+      document.getElementById("statusLine").textContent = "Status: key copied";
+      document.getElementById("statusLine").className = "status ok";
+    }
+
+    function useKeyForActivation() {
+      const value = document.getElementById("fullKeyView").value || "";
+      document.getElementById("activateKey").value = value;
+    }
+
+    function useKeyForValidation() {
+      const value = document.getElementById("fullKeyView").value || "";
+      document.getElementById("validateKey").value = value;
+    }
+
+    document.getElementById("langSelect").addEventListener("change", (e) => applyLanguage(e.target.value));
+    restoreUiPrefs();
+  </script>
+</body>
+</html>

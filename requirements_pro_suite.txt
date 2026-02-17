@@ -1,0 +1,2 @@
+-r server/requirements.txt
+-r desktop_client/requirements.txt

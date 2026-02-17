@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }} - Admin Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #172337;
+      --muted: #5b6b82;
+      --brand: #0f6fff;
+      --line: #dce5f2;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #dae8ff, var(--bg) 40%);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(23, 35, 55, 0.08);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    input, select, button {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      margin-right: 8px;
+    }
+    button {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #dfe8f7;
+      border: 1px solid var(--line);
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .banner {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #edf4ff;
+      border: 1px solid #c5d7fb;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .actions form {
+      margin: 0;
+    }
+    .btn-danger {
+      background: #cf3e47;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>License Admin Dashboard</h1>
+      <p style="margin: 0 0 14px; color: var(--muted);">
+        Active: <strong>{{ active_count }}</strong> | Inactive: <strong>{{ inactive_count }}</strong>
+      </p>
+      <p style="margin: 0 0 10px; color: var(--muted);">
+        Tip: use <strong>All Keys</strong> or <strong>User Profiles</strong> pages to add time, revoke/delete licenses and delete profiles.
+      </p>
+      <form action="/admin/generate" method="post">
+        <select name="duration" required>
+          <option value="1h">1 hour</option>
+          <option value="1d">1 day</option>
+          <option value="30d" selected>30 days</option>
+          <option value="lifetime">Lifetime</option>
+        </select>
+        <input type="password" name="admin_token" placeholder="Admin token" required />
+        <input type="text" name="patreon_user_id" placeholder="Patreon user id (optional)" />
+        <input type="text" name="notes" placeholder="Notes (optional)" />
+        <button type="submit">Generate</button>
+      </form>
+      <form action="/admin/update/notify" method="post" style="margin-top:10px;">
+        <input type="password" name="admin_token" placeholder="Admin token" required />
+        <input type="text" name="message" placeholder="Update message (optional)" />
+        <button type="submit">Send Update Notification</button>
+      </form>
+      <p class="muted" style="margin-top:8px;">
+        Latest update: <strong>{{ update_info.version or "-" }}</strong>
+        {% if update_info.notice_id %}
+        | Last notice id: <code>{{ update_info.notice_id }}</code>
+        {% endif %}
+      </p>
+      <p style="margin-top: 12px;">
+        <a href="/admin/keys" style="color: var(--brand); font-weight: 700; text-decoration: none;">View all keys</a>
+        |
+        <a href="/admin/users" style="color: var(--brand); font-weight: 700; text-decoration: none;">View all users</a>
+      </p>
+      <p style="color: var(--muted); margin-top: 10px;">Use your admin token from <code>.env</code>.</p>
+      <p class="muted">HWID is not created on key generation. It is bound only when the key is activated by a client.</p>
+      {% if generated_key %}
+      <div class="banner">
+        <div><strong>Generated full key:</strong> <code>{{ generated_key }}</code></div>
+        <div><strong>License ID:</strong> <code>{{ generated_license_id }}</code></div>
+      </div>
+      {% endif %}
+      {% if update_notice_sent %}
+      <div class="banner">
+        <div><strong>Update notification sent</strong> for version <code>{{ update_version or update_info.version or "-" }}</code>.</div>
+        <div class="muted">Connected clients receive it on next polling cycle.</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h1>User Profiles ({{ user_count }})</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Avatar</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>User ID</th>
+            <th>Licenses</th>
+            <th>Latest License</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in users %}
+          <tr>
+            <td>
+              {% if item.user.avatar_url %}
+              <img class="avatar" src="{{ item.user.avatar_url }}" alt="avatar" />
+              {% else %}
+              <div class="avatar"></div>
+              {% endif %}
+            </td>
+            <td>
+              <a href="/admin/users/{{ item.user.id }}" style="color: var(--brand); font-weight: 700; text-decoration: none;">
+                {{ item.user.display_name }}
+              </a>
+            </td>
+            <td>{{ item.user.email }}</td>
+            <td><code>{{ item.user.id }}</code></td>
+            <td>{{ item.license_count }}</td>
+            <td>{{ item.latest_license_status or "-" }} {{ item.latest_license_key or "" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h1>Existing Licenses</h1>
+      <p class="muted">Full key is visible for licenses generated after this update. Older entries may show masked key only.</p>
+      <p class="muted">
+        Click display key to open full details. Use actions to deactivate, reactivate or delete.
+      </p>
+      <div style="margin: 10px 0 14px;">
+        <input id="adminTokenInput" type="password" placeholder="Admin token for actions" style="min-width: 260px;" />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>License ID</th>
+            <th>Full Key</th>
+            <th>Display Key</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Duration</th>
+            <th>Expires</th>
+            <th>Patreon ID</th>
+            <th>HWID Bound</th>
+            <th>Activations</th>
+            <th>Notes</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key in licenses %}
+          <tr>
+            <td><code>{{ key.id }}</code></td>
+            <td><code>{{ key.full_key or "-" }}</code></td>
+            <td><a href="/admin/licenses/{{ key.id }}" style="color: var(--brand); font-weight: 700; text-decoration: none;">{{ key.display_key }}</a></td>
+            <td>
+              {% set owner = owner_map.get(key.id) %}
+              {% if owner %}
+                <a href="/admin/users/{{ owner.id }}" style="color: var(--brand); text-decoration: none;">{{ owner.display_name }}</a>
+                <div class="muted">{{ owner.email }}</div>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>{{ key.status.value }}</td>
+            <td>{{ key.duration.value }}</td>
+            <td>{{ key.expires_at or "lifetime" }}</td>
+            <td>{{ key.patreon_user_id or "-" }}</td>
+            <td>{{ "Yes" if key.hwid_hash else "No" }}</td>
+            <td>{{ key.activation_count }}</td>
+            <td>{{ key.notes or "-" }}</td>
+            <td>{{ key.created_at }}</td>
+            <td>
+              <div class="actions">
+                <form method="post" action="/admin/license/{{ key.id }}/deactivate" class="token-form">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin" />
+                  <button type="submit">Deactivate</button>
+                </form>
+                <form method="post" action="/admin/license/{{ key.id }}/reactivate" class="token-form">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin" />
+                  <button type="submit">Reactivate</button>
+                </form>
+                <form method="post" action="/admin/license/{{ key.id }}/delete" class="token-form" onsubmit="return confirm('Delete this license?');">
+                  <input type="hidden" name="admin_token" value="" />
+                  <input type="hidden" name="next_url" value="/admin" />
+                  <button type="submit" class="btn-danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll(".token-form").forEach((form) => {
+      form.addEventListener("submit", () => {
+        const tokenInput = document.getElementById("adminTokenInput");
+        const hidden = form.querySelector("input[name='admin_token']");
+        if (hidden && tokenInput) {
+          hidden.value = tokenInput.value;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
